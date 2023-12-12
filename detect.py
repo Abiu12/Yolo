@@ -154,28 +154,28 @@ def detect(save_img=False):
                         label = f'{names[int(cls)]} {conf:.2f}'
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
-                    if int(cls) == 0:  # Si se detecta una persona (dependiendo del índice de clase)
-                        current_time = time.time()
-                        # print("Current time - last person",current_time - last_person_detection)
-                        # Comprobar si ha pasado suficiente tiempo desde la última detección
-                        if current_time - last_person_detection >= 5:  # 5 segundos
-                            translator = Translator()
-                            traduccion = translator.translate(s, src='en', dest='es')
-                            texto_en_espanol = traduccion.text
-                            # Crear un hilo para reproducir el texto en segundo plano
-                            thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
-                            thread.start()
-                            # sound.play()
-                            last_person_detection = current_time
-                            # print("last person: ", last_person_detection)
-                            person_detected = True
-                            #Para la deteccion de objetos
-                    if person_detected:
-                        current_time = time.time()
-                        # print("person_detected: ", current_time - last_person_detection)
-                        if current_time - last_person_detection >= 5:
-                            # print("Entre a poner false que ya pasaron 5 segundos")
-                            person_detected = False
+                    # print("Current time - last person",current_time - last_person_detection)
+                    # Comprobar si ha pasado suficiente tiempo desde la última detección
+                    current_time = time.time()
+                    if current_time - last_person_detection >= 5:  # 5 segundos
+                        translator = Translator()
+                        traduccion = translator.translate(s, src='en', dest='es')
+                        texto_en_espanol = traduccion.text
+                        # Crear un hilo para reproducir el texto en segundo plano
+                        thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
+                        thread.start()
+                        # sound.play()
+                        last_person_detection = current_time
+                        # print("last person: ", last_person_detection)
+                        person_detected = True
+
+                    #Para la deteccion de objetos
+                    current_time = time.time()
+                    # print("person_detected: ", current_time - last_person_detection)
+                    if current_time - last_person_detection >= 5:
+                        # print("Entre a poner false que ya pasaron 5 segundos")
+                        person_detected = False
+
                     
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
