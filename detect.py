@@ -23,7 +23,16 @@ sound = pygame.mixer.Sound('./sounds/1 persona.mp3')
 
 import time
 
-
+#para convertir texto a voz
+import pyttsx3
+import threading
+from googletrans import Translator
+def speech_engine(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.startLoop(False)
+    engine.iterate()
+    engine.endLoop()
 
 
 def detect(save_img=False):
@@ -131,7 +140,7 @@ def detect(save_img=False):
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-                
+                    
                 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -150,7 +159,13 @@ def detect(save_img=False):
                         # print("Current time - last person",current_time - last_person_detection)
                         # Comprobar si ha pasado suficiente tiempo desde la última detección
                         if current_time - last_person_detection >= 5:  # 5 segundos
-                            sound.play()
+                            translator = Translator()
+                            traduccion = translator.translate(s, src='en', dest='es')
+                            texto_en_espanol = traduccion.text
+                            # Crear un hilo para reproducir el texto en segundo plano
+                            thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
+                            thread.start()
+                            # sound.play()
                             last_person_detection = current_time
                             # print("last person: ", last_person_detection)
                             person_detected = True
@@ -162,9 +177,6 @@ def detect(save_img=False):
                             # print("Entre a poner false que ya pasaron 5 segundos")
                             person_detected = False
                     
-                
-                
-
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
 
