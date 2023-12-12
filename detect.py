@@ -158,9 +158,11 @@ def detect(save_img=False):
                     # Comprobar si ha pasado suficiente tiempo desde la última detección
                     current_time = time.time()
                     if current_time - last_person_detection >= 5:  # 5 segundos
+                        nueva_cadena = s.split(": ", 1)[1]
                         translator = Translator()
-                        traduccion = translator.translate(s, src='en', dest='es')
+                        traduccion = translator.translate(nueva_cadena, src='en', dest='es')
                         texto_en_espanol = traduccion.text
+                        texto_en_espanol = "hay " + texto_en_espanol
                         # Crear un hilo para reproducir el texto en segundo plano
                         thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
                         thread.start()
