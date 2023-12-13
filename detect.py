@@ -37,6 +37,8 @@ def speech_engine(text):
 
 def detect(save_img=False):
     source, weights, view_img, save_txt, imgsz, trace = opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace
+    leng = opt.leng #Para el lenguaje
+    print("El lenguaje es ", leng)
     save_img = not opt.nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -161,11 +163,11 @@ def detect(save_img=False):
                         if current_time - last_person_detection >= 5:  # 5 segundos
                             nueva_cadena = s.split(": ", 1)[1]
                             translator = Translator()
-                            traduccion = translator.translate(nueva_cadena, src='en', dest='es')
-                            texto_en_espanol = traduccion.text
-                            texto_en_espanol = "hay " + texto_en_espanol
+                            nueva_cadena = "There are " + nueva_cadena
+                            traduccion = translator.translate(nueva_cadena, src='en', dest=leng)
+                            texto_traducido= traduccion.text
                             # Crear un hilo para reproducir el texto en segundo plano
-                            thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
+                            thread = threading.Thread(target=speech_engine, args=(texto_traducido,))
                             thread.start()
                             # sound.play()
                             last_person_detection = current_time
@@ -181,7 +183,7 @@ def detect(save_img=False):
 
                     
             # Print time (inference + NMS)
-            print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+            # print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
 
             # Stream results
             if view_img:
@@ -235,6 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--no-trace', action='store_true', help='don`t trace model')
+    parser.add_argument('--leng', type=str, default="es", help='lenguaje of traduction')
     opt = parser.parse_args()
     print(opt)
     #check_requirements(exclude=('pycocotools', 'thop'))
