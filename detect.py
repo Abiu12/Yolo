@@ -144,39 +144,40 @@ def detect(save_img=False):
                 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
-                    if save_txt:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
-                        with open(txt_path + '.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                    if conf > 0.70:
+                        if save_txt:  # Write to file
+                            xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+                            line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
+                            with open(txt_path + '.txt', 'a') as f:
+                                f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
-                    if save_img or view_img:  # Add bbox to image
-                        label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                        if save_img or view_img:  # Add bbox to image
+                            label = f'{names[int(cls)]} {conf:.2f}'
+                            plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
-                    # print("Current time - last person",current_time - last_person_detection)
-                    # Comprobar si ha pasado suficiente tiempo desde la última detección
-                    current_time = time.time()
-                    if current_time - last_person_detection >= 5:  # 5 segundos
-                        nueva_cadena = s.split(": ", 1)[1]
-                        translator = Translator()
-                        traduccion = translator.translate(nueva_cadena, src='en', dest='es')
-                        texto_en_espanol = traduccion.text
-                        texto_en_espanol = "hay " + texto_en_espanol
-                        # Crear un hilo para reproducir el texto en segundo plano
-                        thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
-                        thread.start()
-                        # sound.play()
-                        last_person_detection = current_time
-                        # print("last person: ", last_person_detection)
-                        person_detected = True
+                        # print("Current time - last person",current_time - last_person_detection)
+                        # Comprobar si ha pasado suficiente tiempo desde la última detección
+                        current_time = time.time()
+                        if current_time - last_person_detection >= 5:  # 5 segundos
+                            nueva_cadena = s.split(": ", 1)[1]
+                            translator = Translator()
+                            traduccion = translator.translate(nueva_cadena, src='en', dest='es')
+                            texto_en_espanol = traduccion.text
+                            texto_en_espanol = "hay " + texto_en_espanol
+                            # Crear un hilo para reproducir el texto en segundo plano
+                            thread = threading.Thread(target=speech_engine, args=(texto_en_espanol,))
+                            thread.start()
+                            # sound.play()
+                            last_person_detection = current_time
+                            # print("last person: ", last_person_detection)
+                            person_detected = True
 
-                    #Para la deteccion de objetos
-                    current_time = time.time()
-                    # print("person_detected: ", current_time - last_person_detection)
-                    if current_time - last_person_detection >= 5:
-                        # print("Entre a poner false que ya pasaron 5 segundos")
-                        person_detected = False
+                        #Para la deteccion de objetos
+                        current_time = time.time()
+                        # print("person_detected: ", current_time - last_person_detection)
+                        if current_time - last_person_detection >= 5:
+                            # print("Entre a poner false que ya pasaron 5 segundos")
+                            person_detected = False
 
                     
             # Print time (inference + NMS)
